@@ -1,0 +1,70 @@
+version: '3.9'
+
+
+services:
+  postgisdb:
+    image: postgis/postgis:13-3.3-alpine
+    ports:
+      - '5432:5432'
+
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+
+    volumes:
+      - ./data/db:/var/lib/postgresql/data/
+
+    networks:
+      fullstackdemo:
+        aliases:
+          - fullstackdemo-postgisdb.local
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    ports:
+      - '3000:3000'
+
+    volumes:
+      - ./frontend:/app/frontend
+
+    depends_on:
+      - backend
+    
+    networks:
+      fullstackdemo:
+        aliases:
+          - fullstackdemo-react.local
+
+  backend: 
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+
+    ports:
+      - '8000:8000'
+
+    volumes:
+      - ./backend:/app/backend
+
+    depends_on:
+      - postgisdb
+
+    networks:
+      fullstackdemo:
+        aliases:
+          - fullstackdemo-django.local
+
+networks:
+  fullstackdemo:
+
+    
+
